@@ -290,7 +290,7 @@ const ReviewDetails = ({ setSignInOpen }) => {
   useEffect(() => {
     const fetchMovieData = async () => {
       try {
-        const movieDocRef = doc(db, "Movies", id); // Replace 'movies' with your collection name
+        const movieDocRef = doc(db, "Movies", id); 
         const movieDocSnapshot = await getDoc(movieDocRef);
 
         if (movieDocSnapshot.exists()) {
@@ -320,13 +320,13 @@ const ReviewDetails = ({ setSignInOpen }) => {
   const handleReviewUpload = async () => {
     if (user) {
       try {
-        const movieId = id; // Replace with the actual movie document ID
+        const movieId = id; 
 
         const reviewData = {
           UserComment: comment,
           UserName: user.displayName,
-          StarsGiven: stars,
-          PhotoURL: user.photoURL,
+          StarsGiven: parseInt(stars, 10),
+          PhotoURL: (user.photoURL) ? (user.photoURL):(" https://t4.ftcdn.net/jpg/03/46/93/61/360_F_346936114_RaxE6OQogebgAWTalE1myseY1Hbb5qPM.jpg"),
         };
 
         const reviewsCollectionRef = collection(
@@ -336,8 +336,8 @@ const ReviewDetails = ({ setSignInOpen }) => {
           "Reviews"
         );
         await addDoc(reviewsCollectionRef, reviewData);
-
         console.log("Review uploaded successfully!");
+
       } catch (error) {
         console.error("Error uploading review:", error);
       }
@@ -377,9 +377,9 @@ const ReviewDetails = ({ setSignInOpen }) => {
         <Reviews>
           <Topic>Reviews</Topic>
           <WriteReview>
-            {user?(<Avatar src={user.photoURL}></Avatar>):(<Avatar/>)}
+            {user ? <Avatar src={user.photoURL}></Avatar> : <Avatar />}
             <UserInfo>
-              <UserName>{user?(user.displayName):("Anonymous User")}</UserName>
+              <UserName>{user ? user.displayName : "Anonymous User"}</UserName>
               <MyRating>
                 <Box
                   sx={{
@@ -389,7 +389,7 @@ const ReviewDetails = ({ setSignInOpen }) => {
                   <Typography component="legend"></Typography>
                   <Rating
                     name="simple-controlled"
-                    value={stars}
+                    value={parseInt(stars,10)}
                     onChange={(e) => setStars(e.target.value)}
                   />
                 </Box>

@@ -36,7 +36,7 @@ function ReviewBox({ userComment, userName, starsGiven, avatarURL }) {
           <Typography component="legend">
             <Text>{userName}</Text>
           </Typography>
-          <Rating name="read-only" value={starsGiven} readOnly />
+          <Rating name="read-only" value={parseInt(starsGiven, 10)} readOnly />
         </Box>
         {userComment}
       </UserInfo>
