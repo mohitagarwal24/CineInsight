@@ -9,3 +9,8 @@ To run the app
 4. npm install react-scripts --save
 5. Change the directory to client
 6. Then run- npm start
+
+
+To view the app in working mode follow the given link:
+https://youtu.be/HXvl3lP8VMM
+
