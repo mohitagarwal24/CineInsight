@@ -177,6 +177,8 @@ const Signin = ({
     } catch (error) {
       console.error(error);
     }
+
+    window.location.reload();
   };
 
   return (

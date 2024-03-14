@@ -55,6 +55,8 @@ const Reviews = styled.div`
 `;
 
 const DisplayMovies = ({movies}) => {
+
+  
   const { genre } = useParams();
   const FilterMovies =(type)=>{
     return movies.filter((movie)=> movie.Genre.includes(type))
