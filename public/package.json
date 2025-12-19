@@ -1,6 +1,0 @@
-{
-  "dependencies": {
-    "firebase": "^10.7.1",
-    "react-modal": "^3.16.1"
-  }
-}
