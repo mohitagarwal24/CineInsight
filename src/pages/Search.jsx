@@ -1,11 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import SearchOutlinedIcon from "@mui/icons-material/SearchOutlined";
 import { DefaultCard } from "../components/DefaultCard.jsx";
 import { Category } from "../utils/Data.js";
-
-import { Link } from "react-router-dom";
-
+import MovieCard from "../components/MovieCard.jsx";
 import { CircularProgress } from "@mui/material";
 
 const SearchMain = styled.div`
@@ -36,12 +34,10 @@ const BrowseAll = styled.div`
 `;
 const SearchedCards = styled.div`
   display: flex;
-  flex-direction: row;
-  align-items: flex-start;
+  flex-wrap: wrap;
   gap: 20px;
   padding: 14px;
   @media (max-width: 768px) {
-    flex-direction: column;
     justify-content: center;
     padding: 6px;
   }
@@ -62,19 +58,6 @@ const Search_whole = styled.div`
   gap: 6px;
   color: ${({ theme }) => theme.text_secondary};
 `;
-const OtherResults = styled.div`
-  display: flex;
-  flex-direction: column;
-  height: 700px;
-  overflow-y: scroll;
-  overflow-x: hidden;
-  gap: 6px;
-  padding: 4px 4px;
-  @media (max-width: 768px) {
-    height: 100%;
-    padding: 4px 0px;
-  }
-`;
 
 const Loader = styled.div`
   display: flex;
@@ -90,9 +73,47 @@ const DisplayNo = styled.div`
   height: 100%;
   width: 100%;
   color: ${({ theme }) => theme.text_primary};
+  font-size: 18px;
+  padding: 40px;
 `;
 
-const Search = () => {
+const Search = ({ movies }) => {
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchedMovies, setSearchedMovies] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [searched, setSearched] = useState(false);
+
+  useEffect(() => {
+    // Debounce search to avoid filtering on every keystroke
+    const timer = setTimeout(() => {
+      if (searchQuery.trim() === "") {
+        setSearchedMovies([]);
+        setSearched(false);
+        setLoading(false);
+        return;
+      }
+
+      setLoading(true);
+      setSearched(true);
+
+      // Filter movies by title (case-insensitive)
+      const filtered = movies.filter((movie) =>
+        movie.Title?.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+      setSearchedMovies(filtered);
+      setLoading(false);
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [searchQuery, movies]);
+
+  const handleInputChange = (e) => {
+    setSearchQuery(e.target.value);
+    if (e.target.value.trim() !== "") {
+      setLoading(true);
+    }
+  };
+
   return (
     <SearchMain>
       <div style={{ display: "flex", justifyContent: "center", width: "100%" }}>
@@ -101,28 +122,61 @@ const Search = () => {
           <input
             type="text"
             placeholder="Search Movie"
+            value={searchQuery}
+            onChange={handleInputChange}
             style={{
               border: "none",
               outline: "none",
               width: "100%",
               background: "inherit",
               color: "inherit",
+              fontSize: "16px",
             }}
           />
         </Search_whole>
       </div>
-      {
+
+      {loading && (
+        <Loader>
+          <CircularProgress />
+        </Loader>
+      )}
+
+      {!loading && searched && searchedMovies.length === 0 && (
+        <DisplayNo>No movies found matching "{searchQuery}"</DisplayNo>
+      )}
+
+      {!loading && searched && searchedMovies.length > 0 && (
+        <Categories>
+          <Heading>Search Results ({searchedMovies.length})</Heading>
+          <SearchedCards>
+            {searchedMovies.map((movie) => (
+              <MovieCard
+                key={movie.id}
+                posterLink={movie.PosterLink}
+                title={movie.Title}
+                desc={movie.Description}
+                rating={movie.Rating}
+                id={movie.id}
+              />
+            ))}
+          </SearchedCards>
+        </Categories>
+      )}
+
+      {!searched && (
         <Categories>
           <Heading>Browse All</Heading>
           <BrowseAll>
             {Category.map((category) => (
-              <DefaultCard category={category} />
+              <DefaultCard key={category.name} category={category} />
             ))}
           </BrowseAll>
         </Categories>
-      }
+      )}
     </SearchMain>
   );
 };
 
 export default Search;
+

@@ -75,7 +75,7 @@ function App() {
 
             <Routes>
               <Route path="/" exact element={<Dashboard movies={movies} />} />
-              <Route path="/search" exact element={<Search />} />
+              <Route path="/search" exact element={<Search movies={movies} />} />
               <Route path="/favourites" exact element={<Favourites />} />
               <Route path="/profile" exact element={<Profile />} />
               <Route path="/movie/:id" exact element={<ReviewDetails setSignInOpen={setSignInOpen} />} />
