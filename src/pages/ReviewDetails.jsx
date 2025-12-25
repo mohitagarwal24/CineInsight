@@ -135,7 +135,7 @@ const Topic = styled.div`
   font-size: 22px;
   font-weight: 540;
   display: flex;
-  justify-content space-between;
+  justify-content: space-between;
   align-items: center;
 `;
 
@@ -357,9 +357,9 @@ const ReviewDetails = ({ setSignInOpen }) => {
             <Title>{movieData.Title}</Title>
             <Description>{movieData.Description}</Description>
             <Tags>
-              <Tag>Comedy</Tag>
-              <Tag>Drama</Tag>
-              <Tag>Action</Tag>
+              {movieData.Genre && movieData.Genre.map((genre, index) => (
+                <Tag key={index}>{genre}</Tag>
+              ))}
             </Tags>
             <CreatorContainer>
               <IdmbRating>

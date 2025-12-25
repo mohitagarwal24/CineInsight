@@ -1,15 +1,16 @@
 import React from 'react';
 import styled from 'styled-components';
+import { useNavigate } from 'react-router-dom';
 
 const Card = styled.div`
 width:150px;
 height:150px;
 border-radius:0.6rem;
 padding:1rem;
+cursor: pointer;
+transition: all 0.4s ease-in-out;
 &:hover{
-  cursor: pointer;
   transform: translateY(-8px);
-  transition: all 0.4s ease-in-out;
   box-shadow: 0 0 18px 0 rgba(0, 0, 0, 0.3);
   filter: brightness(1.3);
 }
@@ -37,9 +38,19 @@ display: flex;
 justify-content: flex-end;
 align-items: flex-end;
 `
+
 export const DefaultCard = ({category}) => {
+  const navigate = useNavigate();
+
+  const handleCategoryClick = () => {
+    navigate(`/showmovies/${category.name}`);
+  };
+
   return (
-    <Card style={{"background-color":`${category.color}`}}>
+    <Card 
+      style={{"backgroundColor":`${category.color}`}}
+      onClick={handleCategoryClick}
+    >
         <DefaultCardText>
             {category.name}
         </DefaultCardText>

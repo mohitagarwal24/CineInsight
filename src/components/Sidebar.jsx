@@ -144,7 +144,7 @@ const Sidebar = ({ menuOpen, setMenuOpen, setDarkMode, darkMode }) => {
         </Close>
       </Flex>
       {menuItems.map((item) => (
-        <Link to={item.link} style={{ textDecoration: "none" }}>
+        <Link key={item.link} to={item.link} style={{ textDecoration: "none" }}>
           <Elements>
             {item.icon}
             <NavText>{item.name}</NavText>
@@ -153,7 +153,7 @@ const Sidebar = ({ menuOpen, setMenuOpen, setDarkMode, darkMode }) => {
       ))}
       <HR />
       {button.map((item) => (
-        <Elements onClick={item.fun}>
+        <Elements key={item.name} onClick={item.fun}>
           {item.icon}
           <NavText>{item.name}</NavText>
         </Elements>

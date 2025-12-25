@@ -1,11 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from "styled-components";
 import { IconButton } from "@mui/material";
 import StarImage from "../images/star image.jpg";
-import { FavoriteRounded, StarRounded} from "@mui/icons-material";
-import FavoriteIcon from "@mui/icons-material/Favorite"
+import FavoriteIcon from "@mui/icons-material/Favorite";
+import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import { useNavigate } from 'react-router-dom';
-
+import { db } from '../firebase';
+import { doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
 
 const Card = styled.div`
 position: relative;
@@ -52,6 +53,10 @@ color:white;
   position: absolute !important;
   backdrop-filter: blur(4px);
   box-shadow: 0 0 12px 3px #222423 !important;
+  transition: transform 0.2s ease-in-out;
+  &:hover {
+    transform: scale(1.1);
+  }
 `;
 const Top = styled.div`
 display: flex;
@@ -116,18 +121,76 @@ font-size: 14px;
   color: ${({ theme }) => theme.text_primary};
 `;
 
-const MovieCard = ({posterLink, title, desc, rating, id }) => {
+const MovieCard = ({ posterLink, title, desc, rating, id }) => {
   const navigate = useNavigate();
+  const [isFavourite, setIsFavourite] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const user = JSON.parse(localStorage.getItem("user"));
+
+  // Check if movie is in favourites on mount
+  useEffect(() => {
+    const checkFavourite = async () => {
+      if (user && id) {
+        try {
+          const favDocRef = doc(db, "Users", user.uid, "Favourites", id);
+          const favDoc = await getDoc(favDocRef);
+          setIsFavourite(favDoc.exists());
+        } catch (error) {
+          console.error("Error checking favourite:", error);
+        }
+      }
+    };
+    checkFavourite();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id]);
 
   const handleMovieClick = (ID) => {
     navigate(`/movie/${ID}`);
   };
 
+  const handleFavouriteClick = async (e) => {
+    e.stopPropagation(); // Prevent card click
+    
+    if (!user) {
+      alert("Please sign in to add favourites");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const favDocRef = doc(db, "Users", user.uid, "Favourites", id);
+      
+      if (isFavourite) {
+        // Remove from favourites
+        await deleteDoc(favDocRef);
+        setIsFavourite(false);
+      } else {
+        // Add to favourites
+        await setDoc(favDocRef, {
+          movieId: id,
+          posterLink,
+          title,
+          desc,
+          rating,
+          addedAt: new Date().toISOString()
+        });
+        setIsFavourite(true);
+      }
+    } catch (error) {
+      console.error("Error updating favourite:", error);
+    }
+    setLoading(false);
+  };
+
   return (
     <Card onClick={() => handleMovieClick(id)}>
         <Top>
-            <Favorite>
-                <FavoriteIcon/>
+            <Favorite onClick={handleFavouriteClick} disabled={loading}>
+                {isFavourite ? (
+                  <FavoriteIcon style={{ color: '#e91e63' }} />
+                ) : (
+                  <FavoriteBorderIcon />
+                )}
             </Favorite>
             <CardImage src={posterLink}/>
         </Top>
