@@ -8,7 +8,7 @@ import {
   SearchRounded,
   FavoriteRounded,
   DarkModeRounded,
-  CloudUploadRounded,
+  BookmarkRounded,
 } from "@mui/icons-material";
 import LogoImage from "../images/CineInsight_favicon.png";
 import { Link } from "react-router-dom";
@@ -116,6 +116,12 @@ const Sidebar = ({ menuOpen, setMenuOpen, setDarkMode, darkMode }) => {
       link: "/favourites",
       name: "Favourites",
       icon: <FavoriteRounded />,
+    },
+
+    {
+      link: "/watchlist",
+      name: "Watchlist",
+      icon: <BookmarkRounded />,
     },
   ];
 

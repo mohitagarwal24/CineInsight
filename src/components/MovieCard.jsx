@@ -4,6 +4,8 @@ import { IconButton } from "@mui/material";
 import StarImage from "../images/star image.jpg";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
+import BookmarkIcon from "@mui/icons-material/Bookmark";
+import BookmarkBorderIcon from "@mui/icons-material/BookmarkBorder";
 import { useNavigate } from 'react-router-dom';
 import { db } from '../firebase';
 import { doc, setDoc, deleteDoc, getDoc } from 'firebase/firestore';
@@ -84,18 +86,23 @@ const ViewDetailsText = styled.span`
   }
 `;
 
-const Favorite = styled(IconButton)`
-  color: white;
+const ActionButtonsContainer = styled.div`
+  position: absolute;
   top: 8px;
   right: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 100;
+`;
+
+const ActionButton = styled(IconButton)`
   padding: 6px !important;
   border-radius: 50%;
-  z-index: 100;
   display: flex;
   align-items: center;
   background: ${({ theme }) => theme.text_secondary + 95} !important;
   color: white !important;
-  position: absolute !important;
   backdrop-filter: blur(4px);
   box-shadow: 0 0 12px 3px #222423 !important;
   transition: transform 0.2s ease-in-out;
@@ -181,22 +188,27 @@ const Rating = styled.div`
 const MovieCard = ({ posterLink, title, desc, rating, id }) => {
   const navigate = useNavigate();
   const [isFavourite, setIsFavourite] = useState(false);
+  const [isInWatchlist, setIsInWatchlist] = useState(false);
   const [loading, setLoading] = useState(false);
   const user = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
-    const checkFavourite = async () => {
+    const checkStatus = async () => {
       if (user && id) {
         try {
           const favDocRef = doc(db, "Users", user.uid, "Favourites", id);
           const favDoc = await getDoc(favDocRef);
           setIsFavourite(favDoc.exists());
+
+          const watchlistDocRef = doc(db, "Users", user.uid, "Watchlist", id);
+          const watchlistDoc = await getDoc(watchlistDocRef);
+          setIsInWatchlist(watchlistDoc.exists());
         } catch (error) {
-          console.error("Error checking favourite:", error);
+          console.error("Error checking status:", error);
         }
       }
     };
-    checkFavourite();
+    checkStatus();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
@@ -236,16 +248,58 @@ const MovieCard = ({ posterLink, title, desc, rating, id }) => {
     setLoading(false);
   };
 
+  const handleWatchlistClick = async (e) => {
+    e.stopPropagation();
+    
+    if (!user) {
+      alert("Please sign in to add to watchlist");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const watchlistDocRef = doc(db, "Users", user.uid, "Watchlist", id);
+      
+      if (isInWatchlist) {
+        await deleteDoc(watchlistDocRef);
+        setIsInWatchlist(false);
+      } else {
+        await setDoc(watchlistDocRef, {
+          movieId: id,
+          posterLink,
+          title,
+          desc,
+          rating,
+          watched: false,
+          addedAt: new Date().toISOString()
+        });
+        setIsInWatchlist(true);
+      }
+    } catch (error) {
+      console.error("Error updating watchlist:", error);
+    }
+    setLoading(false);
+  };
+
   return (
     <Card onClick={() => handleMovieClick(id)}>
       <Top>
-        <Favorite onClick={handleFavouriteClick} disabled={loading}>
-          {isFavourite ? (
-            <FavoriteIcon style={{ color: '#e91e63' }} />
-          ) : (
-            <FavoriteBorderIcon />
-          )}
-        </Favorite>
+        <ActionButtonsContainer>
+          <ActionButton onClick={handleFavouriteClick} disabled={loading} title="Add to Favourites">
+            {isFavourite ? (
+              <FavoriteIcon style={{ color: '#e91e63', fontSize: 20 }} />
+            ) : (
+              <FavoriteBorderIcon style={{ fontSize: 20 }} />
+            )}
+          </ActionButton>
+          <ActionButton onClick={handleWatchlistClick} disabled={loading} title="Add to Watchlist">
+            {isInWatchlist ? (
+              <BookmarkIcon style={{ color: '#ffc107', fontSize: 20 }} />
+            ) : (
+              <BookmarkBorderIcon style={{ fontSize: 20 }} />
+            )}
+          </ActionButton>
+        </ActionButtonsContainer>
         <CardImage src={posterLink} />
         <ImageOverlay>
           <ViewDetailsText>View Details</ViewDetailsText>

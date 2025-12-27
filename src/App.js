@@ -7,6 +7,7 @@ import NavBar from "./components/NavBar";
 import Dashboard from "./pages/Dashboard.jsx";
 import Search from "./pages/Search.jsx";
 import Favourites from "./pages/Favourites.jsx";
+import Watchlist from "./pages/Watchlist.jsx";
 import Profile from "./pages/Profile.jsx";
 import ReviewDetails from "./pages/ReviewDetails.jsx";
 import Signin from "./components/Signin.jsx";
@@ -77,6 +78,7 @@ function App() {
               <Route path="/" exact element={<Dashboard movies={movies} />} />
               <Route path="/search" exact element={<Search movies={movies} />} />
               <Route path="/favourites" exact element={<Favourites />} />
+              <Route path="/watchlist" exact element={<Watchlist />} />
               <Route path="/profile" exact element={<Profile />} />
               <Route path="/movie/:id" exact element={<ReviewDetails setSignInOpen={setSignInOpen} />} />
               <Route path="/showmovies/:genre" exact element={<DisplayMovies movies={movies} />} />
